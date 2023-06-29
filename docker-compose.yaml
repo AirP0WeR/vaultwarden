@@ -20,6 +20,7 @@ services:
     labels:
       - "docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump -u ${MYSQL_USER} --password='${MYSQL_PASSWORD}' --all-databases > /backups/vaultwarden_mariadb.sql'"
       - "docker-volume-backup.stop-during-backup=stopservice"
+      - "traefik.enable=false"
     networks:
       - traefik
   vaultwarden:
@@ -37,7 +38,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - RUST_BACKTRACE=1
       - ADMIN_TOKEN=${ADMIN_TOKEN}
-      - DOMAIN=https://warden.ypstudio.ru/
+      - DOMAIN=https://warden.hogin.pro
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_FROM=${SMTP_FROM}
       - SMTP_PORT=${SMTP_PORT}
@@ -48,9 +49,11 @@ services:
     volumes:
       - vaultwarden:/data
     restart: unless-stopped
+    depends_on: 
+      - mariadb
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vaultwarden.rule=Host(`warden.ypstudio.ru`)"
+      - "traefik.http.routers.vaultwarden.rule=Host(`warden.hogin.pro`)"
       - "traefik.http.routers.vaultwarden.entrypoints=websecure"
       - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
       - "traefik.http.routers.vaultwarden.tls.certresolver=myresolver"
